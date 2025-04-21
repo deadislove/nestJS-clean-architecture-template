@@ -4,8 +4,12 @@ import { User } from "@domain/entities/user.entity";
 import { IUserRepository } from "@domain/repositories/user.repository";
 import { CoreResponse } from "@shared/core/response";
 import { plainToInstance } from "class-transformer";
+import { Logger } from "@nestjs/common";
 
 export class GetUserUseCase {
+
+    private readonly logger = new Logger(GetUserUseCase.name)
+
     constructor(
         private readonly iUserRepository: IUserRepository,
     ) { }
@@ -19,6 +23,8 @@ export class GetUserUseCase {
                     const users: User[] = getUsers.getValue()
                     const responseData: GetUserUseCaseOutput[] = plainToInstance(GetUserUseCaseOutput, users)
 
+                    this.logger.log('Fetching users....')
+
                     return users.length > 0 ? CoreResponse.success(responseData) : CoreResponse.empty(204)
                 } else {
                     return CoreResponse.fail([getUsers.error ?? 'Unknown error']);
@@ -31,6 +37,7 @@ export class GetUserUseCase {
                     const userValue: User | null = getUserById.getValue()
                     if (userValue) {
                         const responseData: GetUserUseCaseOutput = plainToInstance(GetUserUseCaseOutput, userValue)
+                        this.logger.log('Fetch user...')
                         return CoreResponse.success([responseData])
                     } else {
                         return CoreResponse.empty(204)
