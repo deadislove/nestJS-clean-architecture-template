@@ -1,0 +1,37 @@
+name: Update Clone Stats in README
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Monday 00:00 UTC automatically execute
+  workflow_dispatch:  # Can be triggered manually
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch GitHub clone stats and update README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          CLONE_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/$REPO/traffic/clones)
+
+          COUNT=$(echo "$CLONE_DATA" | jq '.count')
+          UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
+
+          echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
+
+          # Update README.md
+          sed -i "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m "Update clone stats" || echo "No changes to commit"
+          git push
