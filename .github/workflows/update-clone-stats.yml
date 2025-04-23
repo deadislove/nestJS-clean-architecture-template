@@ -39,12 +39,8 @@ jobs:
         env:
           MY_PAT: ${{ secrets.MY_PAT }}
         run: |
-          git config --global user.name 'deadislove'
-          git config --global user.email 'taweilin7689@gmail.com'
-
           git add README.md
           git commit -m "Update clone stats" || echo "No changes to commit"
 
-          # Use PAT to push changes
-          REPO_URL="https://x-access-token:${MY_PAT}@github.com/${GITHUB_REPOSITORY}.git"
-          git push "$REPO_URL" HEAD:main
+          # Use the GITHUB_TOKEN for pushing changes
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
