@@ -2,14 +2,15 @@ name: Update Clone Stats in README
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Monday
-  workflow_dispatch:  # 
+    - cron: '0 0 * * 1' # Execute every Monday at 00:00 UTC
+  workflow_dispatch: # Allow manual trigger
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Fetch GitHub clone stats and update README
@@ -17,23 +18,33 @@ jobs:
           MY_PAT: ${{ secrets.MY_PAT }}
           REPO: ${{ github.repository }}
         run: |
+          echo "🔑 Using PAT to fetch clone data"
           CLONE_DATA=$(curl -s -H "Authorization: token $MY_PAT" \
             https://api.github.com/repos/$REPO/traffic/clones)
 
           echo "Debug: CLONE_DATA = $CLONE_DATA"
-          
+
           COUNT=$(echo "$CLONE_DATA" | jq '.count')
           UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
 
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
-          # Update README.md
-          sed -i "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md
+          BADGE="![Clones](https://img.shields.io/badge/clones-${COUNT}_total_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->"
+          echo "Generated badge: $BADGE"
 
-      - name: Commit and push if changed
+          # Replace the badge section in README.md
+          sed -i "s|<!--CLONE-BADGE-->.*|$BADGE|" README.md
+
+      - name: Commit and push if README was updated
+        env:
+          MY_PAT: ${{ secrets.MY_PAT }}
         run: |
           git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
           git add README.md
           git commit -m "Update clone stats" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:main
+
+          # Use PAT to push changes
+          REPO_URL="https://x-access-token:${MY_PAT}@github.com/${GITHUB_REPOSITORY}.git"
+          git push "$REPO_URL" HEAD:main
