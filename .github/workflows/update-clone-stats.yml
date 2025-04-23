@@ -39,8 +39,8 @@ jobs:
         env:
           MY_PAT: ${{ secrets.MY_PAT }}
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --global user.name 'deadislove'
+          git config --global user.email 'taweilin7689@gmail.com'
 
           git add README.md
           git commit -m "Update clone stats" || echo "No changes to commit"
