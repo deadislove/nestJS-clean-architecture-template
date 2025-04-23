@@ -14,26 +14,25 @@ jobs:
 
       - name: Fetch GitHub clone stats and update README
         env:
-          MY_PAT: ${{ secrets.MY_PAT }}  # 使用 personal access token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          # Fetch clone data from GitHub API
-          CLONE_DATA=$(curl -s -H "Authorization: token $MY_PAT" \
+          CLONE_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             https://api.github.com/repos/$REPO/traffic/clones)
-
-          # Check if clone data was retrieved successfully
-          if [ -z "$CLONE_DATA" ]; then
-            echo "Failed to fetch clone data."
-            exit 1
-          fi
 
           COUNT=$(echo "$CLONE_DATA" | jq '.count')
           UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
 
+          # Check if data is valid
+          if [ "$COUNT" == "null" ] || [ "$UNIQUES" == "null" ]; then
+            echo "No clone data available."
+            exit 1
+          fi
+
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
           # Update README.md with clone stats
-          sed -i "s#<!--CLONE-BADGE-->.*#![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->#" README.md
+          sed -i "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md
 
       - name: Commit and push if changed
         run: |
