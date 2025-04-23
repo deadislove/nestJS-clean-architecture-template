@@ -17,21 +17,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
+          # Fetch clone stats
           CLONE_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             https://api.github.com/repos/$REPO/traffic/clones)
 
-          COUNT=$(echo "$CLONE_DATA" | jq '.count')
-          UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
-
-          # Check if data is valid
-          if [ "$COUNT" == "null" ] || [ "$UNIQUES" == "null" ]; then
+          # Check if clone data is valid
+          if [ "$CLONE_DATA" == "null" ]; then
             echo "No clone data available."
             exit 1
           fi
 
+          COUNT=$(echo "$CLONE_DATA" | jq '.count')
+          UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
+
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
-          # Update README.md with clone stats using sed
+          # Use different separator for sed and directly update README.md
           sed "s#<!--CLONE-BADGE-->.*#![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->#" README.md > temp_readme.md && mv temp_readme.md README.md
 
       - name: Commit and push if changed
