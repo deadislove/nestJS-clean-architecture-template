@@ -2,8 +2,8 @@ name: Update Clone Stats in README
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # 每週一自動執行
-  workflow_dispatch:  # 可以手動觸發
+    - cron: '0 0 * * 1'  # Monday
+  workflow_dispatch:  # 
 
 jobs:
   update-readme:
