@@ -22,6 +22,9 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=deadislove.nestJS-clean-architecture-template)
+![Clones](https://img.shields.io/badge/clones-0_total_|_0_unique-blue) <!--CLONE-BADGE-->
+
 ## Description
 
 This project is a TypeScript-based server-side application template built with the [Nest](https://github.com/nestjs/nest) framework, following the principles of Clean Architecture. It emphasizes maintainability, testability, and clear separation of concerns across multiple layers, including Domain, Application, Infrastructure, and Interfaces. The architecture ensures that core business logic remains decoupled from external frameworks and database implementations. It supports multiple databases (SQLite, PostgreSQL, MySQL) and uses the Factory Pattern to switch between them seamlessly. The project also includes Docker integration, environment variable configuration, and strategies for automated testing and deployment. This template is well-suited for building scalable backend services in both practice and production environments.
