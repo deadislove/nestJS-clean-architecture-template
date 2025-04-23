@@ -39,6 +39,12 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # Add personal access token for authentication
+          git remote set-url origin https://github.com/${{ github.repository }}.git
+          git config --global credential.helper store
+          echo "https://${MY_PAT}:x-oauth-basic" > ~/.git-credentials
+
           git add README.md
           git commit -m "Update clone stats" || echo "No changes to commit"
           git push
