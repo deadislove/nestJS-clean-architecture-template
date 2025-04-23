@@ -31,8 +31,8 @@ jobs:
 
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
-          # Update README.md with clone stats
-          sed -i "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md
+          # Update README.md with clone stats using sed
+          sed "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md > temp_readme.md && mv temp_readme.md README.md
 
       - name: Commit and push if changed
         run: |
