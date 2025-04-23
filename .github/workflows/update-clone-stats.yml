@@ -2,8 +2,8 @@ name: Update Clone Stats in README
 
 on:
   schedule:
-    - cron: '0 0 * * 1'  # Monday 00:00 UTC automatically execute
-  workflow_dispatch:  # Can be triggered manually
+    - cron: '0 0 * * 1'  # 每週一自動執行
+  workflow_dispatch:  # 可以手動觸發
 
 jobs:
   update-readme:
@@ -14,37 +14,24 @@ jobs:
 
       - name: Fetch GitHub clone stats and update README
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MY_PAT: ${{ secrets.MY_PAT }}  # Add your PAT secret
+          MY_PAT: ${{ secrets.MY_PAT }}
           REPO: ${{ github.repository }}
         run: |
-          # Fetch clone stats
-          CLONE_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          CLONE_DATA=$(curl -s -H "Authorization: token $MY_PAT" \
             https://api.github.com/repos/$REPO/traffic/clones)
-
-          # Check if clone data is valid
-          if [ "$CLONE_DATA" == "null" ]; then
-            echo "No clone data available."
-            exit 1
-          fi
 
           COUNT=$(echo "$CLONE_DATA" | jq '.count')
           UNIQUES=$(echo "$CLONE_DATA" | jq '.uniques')
 
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
-          # Use different separator for sed and directly update README.md
-          sed "s#<!--CLONE-BADGE-->.*#![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->#" README.md > temp_readme.md && mv temp_readme.md README.md
+          # 更新 README.md
+          sed -i "s|<!--CLONE-BADGE-->.*|![Clones](https://img.shields.io/badge/clones-${COUNT}_total_|_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->|" README.md
 
       - name: Commit and push if changed
         run: |
           git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-          # Use the PAT for pushing changes
-          git remote set-url origin https://$MY_PAT@github.com/${{ github.repository }}.git
-          git config --global credential.helper store
-
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add README.md
           git commit -m "Update clone stats" || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} HEAD:main
