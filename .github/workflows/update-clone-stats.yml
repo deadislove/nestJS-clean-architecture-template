@@ -29,11 +29,11 @@ jobs:
 
           echo "🔁 Clones: $COUNT, 👤 Unique: $UNIQUES"
 
-          BADGE="![Clones](https://img.shields.io/badge/clones-${COUNT}_total_${UNIQUES}_unique-blue) <!--CLONE-BADGE-->"
+          BADGE="![Clones](https://img.shields.io/badge/clones-${COUNT}_total_${UNIQUES}_unique-blue)"
           echo "Generated badge: $BADGE"
 
-          # Replace the badge section in README.md with the new badge
-          sed -i 's|<!--CLONE-BADGE-->.*|'"$BADGE"'|' README.md
+          # Replace the old badge with the new one, regardless of its position in README.md
+          sed -i 's|!\[Clones\](https://img.shields.io/badge/clones.*)|'"$BADGE"'|' README.md
 
       - name: Commit and push if README was updated
         env:
