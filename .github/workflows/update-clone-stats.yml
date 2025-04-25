@@ -46,7 +46,8 @@ jobs:
 
           echo "👁️ Views: $COUNT, 👤 Unique Visitors: $UNIQUES"
 
-          BADGE="![Visitors](https://img.shields.io/badge/visitors-${COUNT}_total_${UNIQUES}_unique-brightgreen)"
+          # BADGE="![Visitors](https://img.shields.io/badge/visitors-${COUNT}_total_${UNIQUES}_unique-brightgreen)"
+          BADGE="![Visitors](https://img.shields.io/badge/visitors-${COUNT}_total-brightgreen)"
           echo "Generated badge: $BADGE"
 
           # Replace the old badge with the new one in README.md (optional: use comment tags)
