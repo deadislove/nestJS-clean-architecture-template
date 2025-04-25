@@ -35,6 +35,23 @@ jobs:
           # Replace the old badge with the new one, regardless of its position in README.md
           sed -i 's|!\[Clones\](https://img.shields.io/badge/clones.*)|'"$BADGE"'|' README.md
 
+          echo "🔑 Using PAT to fetch visitor data"
+          VIEW_DATA=$(curl -s -H "Authorization: token $MY_PAT" \
+            https://api.github.com/repos/$REPO/traffic/views)
+
+          echo "Debug: VIEW_DATA = $VIEW_DATA"
+
+          COUNT=$(echo "$VIEW_DATA" | jq '.count')
+          UNIQUES=$(echo "$VIEW_DATA" | jq '.uniques')
+
+          echo "👁️ Views: $COUNT, 👤 Unique Visitors: $UNIQUES"
+
+          BADGE="![Visitors](https://img.shields.io/badge/visitors-${COUNT}_total_${UNIQUES}_unique-brightgreen)"
+          echo "Generated badge: $BADGE"
+
+          # Replace the old badge with the new one in README.md (optional: use comment tags)
+          sed -i 's|!\[Visitors\](https://img.shields.io/badge/visitors.*)|'"$BADGE"'|' README.md
+
       - name: Commit and push if README was updated
         env:
           MY_PAT: ${{ secrets.MY_PAT }}
