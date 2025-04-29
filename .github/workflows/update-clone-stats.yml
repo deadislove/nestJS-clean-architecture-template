@@ -2,7 +2,7 @@ name: Update Clone Stats in README
 
 on:
   schedule:
-    - cron: '0 0 * * 1' # Execute every Monday at 00:00 UTC
+    - cron: '0 0 * * 1,5' # Execute every Monday at 00:00 UTC
   workflow_dispatch: # Allow manual trigger
 
 jobs:
