@@ -25,7 +25,7 @@
 <!--![Visitors](https://visitor-badge.laobi.icu/badge?page_id=deadislove.nestJS-clean-architecture-template) -->
 <!--![Visitors](https://img.shields.io/badge/visitors-18_total-brightgreen) -->
 ![Visitors](https://img.shields.io/badge/visitors-18_total-brightgreen)
-![Clones](https://img.shields.io/badge/clones-16_total_14_unique-blue) <!--CLONE-BADGE-->
+![Clones](https://img.shields.io/badge/clones-18_total_14_unique-blue) <!--CLONE-BADGE-->
 
 ## Description
 
