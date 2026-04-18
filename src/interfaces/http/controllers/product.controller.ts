@@ -1,4 +1,4 @@
-import { CreateProductUseCase, DeleteProductUseCase, GetProductUseCase, UpdateProductUseCase, UserPorductUseCase } from "@application/use-cases/product";
+import { CreateProductUseCase, DeleteProductUseCase, GetProductUseCase, UpdateProductUseCase, UserProductUseCase } from "@application/use-cases/product";
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from "@nestjs/common";
 import { CreateProductRequestModel } from "../dto/requests/product/create-product.request";
 import { CreateProductUseCaseInput, DeleteProductUseCaseInput, GetProductUseCaseOutput, UpdatedProductUseCaseInput, UserWithProductsOutput } from "@application/interfaces/product";
@@ -14,12 +14,13 @@ export class ProductController {
         private readonly getProductCase: GetProductUseCase,
         private readonly updateProductCase: UpdateProductUseCase,
         private readonly deleteProductCase: DeleteProductUseCase,
-        private readonly userWithProductCase: UserPorductUseCase,
+        private readonly userWithProductCase: UserProductUseCase,
     ){}
 
     @Get()
     async allProducts() : Promise<CoreResponse<GetProductOutputResponseModel[]>> {
-        const products: CoreResponse<GetProductUseCaseOutput[]> = await this.getProductCase.execute()
+        const results = await this.getProductCase.execute()
+        const products: CoreResponse<GetProductUseCaseOutput[]> = CoreResponse.fromResult(results)
 
         if(products.data) {
             const responseData: GetProductOutputResponseModel[] = plainToInstance(GetProductOutputResponseModel, products.data)
@@ -36,7 +37,8 @@ export class ProductController {
     async productById(
         @Param('id', ParseIntPipe) id: number
     ) : Promise<CoreResponse<GetProductOutputResponseModel[]>> {
-        const product: CoreResponse<GetProductUseCaseOutput[]> = await this.getProductCase.execute(id)
+        const result = await this.getProductCase.execute(id)
+        const product: CoreResponse<GetProductUseCaseOutput[]> = CoreResponse.fromResult(result)
 
         if(product.data) {
             const responseData: GetProductOutputResponseModel[] = plainToInstance(GetProductOutputResponseModel, product.data)
@@ -51,7 +53,8 @@ export class ProductController {
     @Post()
     async create(@Body() requestModel: CreateProductRequestModel) : Promise<CoreResponse<CreateProductResponseModel>> {
         const productInput: CreateProductUseCaseInput = plainToInstance(CreateProductUseCaseInput, requestModel)
-        const product: CoreResponse<GetProductUseCaseOutput> = await this.createProductCase.execute(productInput)
+        const reuslt = await this.createProductCase.execute(productInput)
+        const product: CoreResponse<GetProductUseCaseOutput> = CoreResponse.fromResult(reuslt)
 
         if(product.data) {
             const responseData: CreateProductResponseModel = plainToInstance(CreateProductResponseModel, product.data)
@@ -76,7 +79,8 @@ export class ProductController {
         }
 
         const productInput: UpdatedProductUseCaseInput = plainToInstance(UpdatedProductUseCaseInput, requestModel).withDefaults()
-        const resultProduct: CoreResponse<GetProductUseCaseOutput> = await this.updateProductCase.execute(productInput)
+        const result = await this.updateProductCase.execute(productInput)
+        const resultProduct: CoreResponse<GetProductUseCaseOutput> = CoreResponse.fromResult(result)
 
         if(resultProduct.data) {
             const responseData: UpdatedProductResponseModel = plainToInstance(UpdatedProductResponseModel, resultProduct.data)
@@ -97,13 +101,12 @@ export class ProductController {
         const deleteProductUseCaseInput: DeleteProductUseCaseInput = plainToInstance(DeleteProductUseCaseInput, { id })
         const deleteProduct = await this.deleteProductCase.execute(deleteProductUseCaseInput)
 
-        if(deleteProduct.data) {
-            const responseData = plainToInstance(Boolean, deleteProduct.data)
-            return CoreResponse.success(responseData)
-        } else if (deleteProduct.errors.length > 0) {
-            return CoreResponse.fail(deleteProduct.errors)
+        if (deleteProduct.isSuccess && deleteProduct.getValue()) {
+            return CoreResponse.success(true);
+        } else if (deleteProduct.isFailure) {
+            return CoreResponse.fail(deleteProduct.error || ["Deletion failed"], 404);
         } else {
-            return CoreResponse.empty(204)
+            return CoreResponse.fail(["Product could not be deleted"], 400);
         }
     }
 
@@ -113,8 +116,8 @@ export class ProductController {
     ) : Promise<CoreResponse<UserWithProductsResponseModel[]>>{
 
         if(id === 0) return CoreResponse.fail(['Bad request'], 400)
-
-        const result:CoreResponse<UserWithProductsOutput[]> = await this.userWithProductCase.executeUserWithProduct(id)
+        const exeResult = await this.userWithProductCase.executeUserWithProduct(id)
+        const result:CoreResponse<UserWithProductsOutput[]> = CoreResponse.fromResult(exeResult)
 
         if(result.data) {
             const responseData: UserWithProductsResponseModel[] = plainToInstance(UserWithProductsResponseModel, result.data)

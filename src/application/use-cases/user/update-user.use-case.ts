@@ -2,7 +2,6 @@ import { GetUserUseCaseOutput, UpdatedUserUseCaseInput } from "@application/inte
 import { Result } from "@domain/core/result";
 import { User } from "@domain/entities/user.entity";
 import { IUserRepository } from "@domain/repositories/user.repository";
-import { CoreResponse } from "@shared/core/response";
 import { plainToInstance } from "class-transformer";
 
 export class UpdateUserUseCase {
@@ -10,22 +9,27 @@ export class UpdateUserUseCase {
         private readonly iUserRepository: IUserRepository
     ){}
 
-    async execute(input: UpdatedUserUseCaseInput) : Promise<CoreResponse<GetUserUseCaseOutput>> {
+    async execute(input: UpdatedUserUseCaseInput) : Promise<Result<GetUserUseCaseOutput>> { // Change return type
         try {
             let updatedUser: User = new User()
             Object.assign(updatedUser, input)
             const result: Result<User | null> = await this.iUserRepository.updateUser(updatedUser.id, updatedUser)
 
             if(result.isSuccess) {
-                const user : User | null  = result.getValue()
-                const responseData: GetUserUseCaseOutput = plainToInstance(GetUserUseCaseOutput, user)
-                return CoreResponse.success(responseData)
+                const user: User | null = result.getValue();
+                if (user) {
+                    const responseData: GetUserUseCaseOutput = plainToInstance(GetUserUseCaseOutput, user);
+                    return Result.ok(responseData);
+                } else {
+                    return Result.fail([`User with ID ${input.id} not found for update`]);
+                }
             } else {
-                return CoreResponse.fail([result.error ?? 'Unknown error'])
+                return Result.fail(result.error || ['Unknown error during user update']);
             }
         }
         catch(error) {
-            return CoreResponse.fail([error.message])
+            const message = error instanceof Error ? error.message : 'Unknown error'
+            return Result.fail([message || 'An unexpected error occurred during user update']);
         }
     }
 }

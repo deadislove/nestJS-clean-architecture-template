@@ -1,4 +1,4 @@
-import { CreateProductUseCase, DeleteProductUseCase, GetProductUseCase, UpdateProductUseCase, UserPorductUseCase } from "@application/use-cases/product";
+import { CreateProductUseCase, DeleteProductUseCase, GetProductUseCase, UpdateProductUseCase, UserProductUseCase } from "@application/use-cases/product";
 import { DatabaseModule } from "@infra/database/database.module";
 import { ProductTypeOrmEntity } from "@infra/persistence/typeorm/entities";
 import { ProductRepository } from "@infra/persistence/typeorm/repositories/product.repository.iml";
@@ -43,8 +43,8 @@ import { GetUserUseCase } from "@application/use-cases/user";
             inject: ['ProductRepository']
         },
         {
-            provide: UserPorductUseCase,
-            useFactory: (getUserCase: GetUserUseCase, productrepo: ProductRepository) => new UserPorductUseCase(getUserCase, productrepo),
+            provide: UserProductUseCase,
+            useFactory: (getUserCase: GetUserUseCase, productrepo: ProductRepository) => new UserProductUseCase(getUserCase, productrepo),
             inject: [
                 GetUserUseCase,
                 'ProductRepository'

@@ -7,7 +7,7 @@ export class SQLiteDatabase {
     
     getConnection(): TypeOrmModuleOptions {
         return {
-            type: 'sqlite',
+            type: 'better-sqlite3',
             database: `./database.sqlite`,
             //database: this.configService.get<string>('DB_NAME', `database.sqlite`),
             entities: [

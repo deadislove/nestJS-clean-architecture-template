@@ -2,7 +2,6 @@ import { GetUserUseCaseOutput } from "@application/interfaces/user";
 import { Result } from "@domain/core/result";
 import { User } from "@domain/entities/user.entity";
 import { IUserRepository } from "@domain/repositories/user.repository";
-import { CoreResponse } from "@shared/core/response";
 import { plainToInstance } from "class-transformer";
 import { Logger } from "@nestjs/common";
 
@@ -14,7 +13,7 @@ export class GetUserUseCase {
         private readonly iUserRepository: IUserRepository,
     ) { }
 
-    async execute(id: number = 0): Promise<CoreResponse<GetUserUseCaseOutput[]>> {
+    async execute(id: number = 0): Promise<Result<GetUserUseCaseOutput[]>> { // Change return type
         try {
             if (id === 0) {
                 const getUsers: Result<User[]> = await this.iUserRepository.getUsers()
@@ -22,12 +21,10 @@ export class GetUserUseCase {
                 if (getUsers.isSuccess) {
                     const users: User[] = getUsers.getValue()
                     const responseData: GetUserUseCaseOutput[] = plainToInstance(GetUserUseCaseOutput, users)
-
                     this.logger.log('Fetching users....')
-
-                    return users.length > 0 ? CoreResponse.success(responseData) : CoreResponse.empty(204)
+                    return Result.ok(responseData); // Always return ok with data, let controller handle empty array for 204
                 } else {
-                    return CoreResponse.fail([getUsers.error ?? 'Unknown error']);
+                    return Result.fail(getUsers.error || ['Unknown error fetching all users']);
                 }
             }
             else {
@@ -38,19 +35,19 @@ export class GetUserUseCase {
                     if (userValue) {
                         const responseData: GetUserUseCaseOutput = plainToInstance(GetUserUseCaseOutput, userValue)
                         this.logger.log('Fetch user...')
-                        return CoreResponse.success([responseData])
+                        return Result.ok([responseData]);
                     } else {
-                        return CoreResponse.empty(204)
+                        // User not found is a business outcome, not an error in the use case itself
+                        return Result.fail([`User with ID ${id} not found`]); 
                     }
                 } else {
-                    return CoreResponse.empty(204)
+                    return Result.fail(getUserById.error || [`Unknown error fetching user with ID ${id}`]);
                 }
             }
         }
         catch (error) {
             const message = error instanceof Error ? error.message : 'Unknown error'
-            return CoreResponse.fail([message])
-
+            return Result.fail([message]);
         }
     }
 }

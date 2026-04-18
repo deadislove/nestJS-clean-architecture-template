@@ -1,3 +1,5 @@
+import { Result } from "@domain/core/result";
+
 export class CoreResponse<T> {
     constructor(
         public code: number,
@@ -15,5 +17,14 @@ export class CoreResponse<T> {
 
     static empty<T>(code: number = 204): CoreResponse<T> {
         return new CoreResponse<T>(code, null, [])
+    }
+
+    static fromResult<T>(result: Result<T>, successCode: number = 200, errorCode: number = 400): CoreResponse<T> {
+        if (result.isSuccess) {
+            return CoreResponse.success(result.getValue(), successCode);
+        }
+        
+        const errors = result.error ?? ['Unknown error occurred'];
+        return CoreResponse.fail(errors, errorCode);
     }
 }

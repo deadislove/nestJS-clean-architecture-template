@@ -2,7 +2,6 @@ import { GetProductUseCaseOutput } from "@application/interfaces/product";
 import { Result } from "@domain/core/result";
 import { Product } from "@domain/entities/product.entity";
 import { IProductRepository } from "@domain/repositories/product.repository";
-import { CoreResponse } from "@shared/core/response";
 import { plainToInstance } from "class-transformer";
 
 export class GetProductUseCase {
@@ -10,7 +9,7 @@ export class GetProductUseCase {
         private readonly iProductRepository: IProductRepository
     ){}
 
-    async execute(id:number = 0): Promise<CoreResponse<GetProductUseCaseOutput[]>> {
+    async execute(id:number = 0): Promise<Result<GetProductUseCaseOutput[]>> { // Change return type
         try {
             if(id === 0) {
                 const getProducts: Result<Product[]> = await this.iProductRepository.getProducts()
@@ -18,10 +17,9 @@ export class GetProductUseCase {
                 if(getProducts.isSuccess) {
                     const products: Product[] = getProducts.getValue()
                     const responseData: GetProductUseCaseOutput[] = plainToInstance(GetProductUseCaseOutput, products)
-
-                    return products.length > 0 ? CoreResponse.success(responseData) : CoreResponse.empty(204)
+                    return Result.ok(responseData); // Always return ok with data, let controller handle empty array for 204
                 } else {
-                    return CoreResponse.fail([getProducts.error ?? 'Unknown error'])
+                    return Result.fail(getProducts.error || ['Unknown error fetching all products']);
                 }
             }
             else {
@@ -31,18 +29,19 @@ export class GetProductUseCase {
                     const productValue: Product | null = getProduct.getValue()
                     if(productValue) {
                         const responseData: GetProductUseCaseOutput = plainToInstance(GetProductUseCaseOutput, productValue)
-                        return CoreResponse.success([responseData])
+                        return Result.ok([responseData]);
                     } else {
-                        return CoreResponse.empty(204)
+                        // Product not found is a business outcome, not an error in the use case itself
+                        return Result.fail([`Product with ID ${id} not found`]);
                     }
                 } else {
-                    return CoreResponse.empty(204)
+                    return Result.fail(getProduct.error || [`Unknown error fetching product with ID ${id}`]);
                 }
             }
         }
         catch(error){
             const message = error instanceof Error ? error.message : 'Unknow error'
-            return CoreResponse.fail([message])
+            return Result.fail([message]);
         }
     }
 }
