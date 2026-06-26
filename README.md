@@ -23,9 +23,9 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 <!--![Visitors](https://visitor-badge.laobi.icu/badge?page_id=deadislove.nestJS-clean-architecture-template) -->
-<!--![Visitors](https://img.shields.io/badge/visitors-183_total-brightgreen) -->
-![Visitors](https://img.shields.io/badge/visitors-183_total-brightgreen)
-![Clones](https://img.shields.io/badge/clones-92_total_44_unique-blue) <!--CLONE-BADGE-->
+<!--![Visitors](https://img.shields.io/badge/visitors-123_total-brightgreen) -->
+![Visitors](https://img.shields.io/badge/visitors-123_total-brightgreen)
+![Clones](https://img.shields.io/badge/clones-86_total_41_unique-blue) <!--CLONE-BADGE-->
 
 ## Description
 
